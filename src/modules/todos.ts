@@ -31,7 +31,7 @@ export interface Todo {
   done: boolean;
 }
 
-type TodosState = Todo[];
+export type TodosState = Todo[];
 
 // 초깃값 설정
 const initialState: TodosState = [

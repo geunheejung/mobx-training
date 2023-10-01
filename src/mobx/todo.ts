@@ -1,17 +1,35 @@
 import { makeObservable, observable, action, computed } from "mobx";
+export class Todo {
+  id = Math.random();
+  title = "";
+  isFinished = false;
 
-export interface ITodo {
-  title: string;
-  isFinished: boolean;
+  constructor(title: string) {
+    this.title = title;
+
+    // target, 어노테이션 ->  target / 타겟을 observable 객체로 만드는 듯.
+    makeObservable(this, {
+      title: observable, // 시간에 지남에 따라 변경하려는 속성을 MobX가 추적할 수 있도록 observable로 표시하면 됨.
+      isFinished: observable,
+      toggle: action,
+    });
+  }
+  toggle() {
+    this.isFinished = !this.isFinished;
+  }
 }
-export type Todos = ITodo[];
-class TodoList {
-  todos: Todos = [];
 
-  constructor(todos: Todos) {
+type TodoListType = Todo[];
+export class TodoList {
+  todos: TodoListType = [];
+
+  constructor(todos: TodoListType) {
+    this.todos = todos;
+
     makeObservable(this, {
       todos: observable,
       unfinishedTodoCount: computed,
+      removeTodo: action,
     });
   }
 
@@ -19,22 +37,9 @@ class TodoList {
   get unfinishedTodoCount() {
     return this.todos.filter((todo) => !todo.isFinished).length;
   }
-}
 
-class Todo {
-  id = Math.random();
-  title = "";
-  finished = false;
-
-  constructor(title: string) {
-    // target, 어노테이션 ->  target / 타겟을 observable 객체로 만드는 듯.
-    makeObservable(this, {
-      title: observable, // 시간에 지남에 따라 변경하려는 속성을 MobX가 추적할 수 있도록 observable로 표시하면 됨.
-      finished: observable,
-      toggle: action,
-    });
-  }
-  toggle() {
-    this.finished = !this.finished;
+  removeTodo(id: number) {
+    const target = this.todos.findIndex((row) => row.id === id);
+    this.todos.splice(target, 1);
   }
 }

@@ -1,26 +1,40 @@
 import React, { useCallback, useMemo, useState } from "react";
-import logo from "./logo.svg";
 import "./App.css";
 import { Counter } from "./Counter";
 import CounterWithRedux from "./components/CounterWithRedux/Counter";
-import Todo from "./components/Todo";
+import TodoWithMobx from "./components/TodoWithMobx";
+import TimerView, { myTimer } from "./components/Timer";
+
+const stateType = {
+  useReducer: "useReducer",
+  redux: "redux",
+  mobx: "mobx",
+} as const;
+
+type StateTypeKeys = keyof typeof stateType;
 
 function App() {
-  const [counterType, setCounterType] = useState<"useReducer" | "redux">(
-    "useReducer"
+  const [counterType, setCounterType] = useState<StateTypeKeys>(
+    stateType.useReducer
   );
 
   const handleClick = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newCounterType = e.target.value as "useReducer" | "redux";
+    const newCounterType = e.target.value as StateTypeKeys;
     setCounterType(newCounterType);
   }, []);
 
-  const renderCoutner = useMemo(() => {
+  const renderCounter = useMemo(() => {
     switch (counterType) {
-      case "redux":
+      case stateType.redux:
         return <CounterWithRedux />;
-      case "useReducer":
+      case stateType.useReducer:
         return <Counter />;
+      case stateType.mobx:
+        return (
+          <div>
+            <TodoWithMobx />
+          </div>
+        );
       default:
         return;
     }
@@ -31,33 +45,24 @@ function App() {
         <article>
           <fieldset>
             <legend>Counter Type</legend>
-            <div>
-              {" "}
-              <input
-                type="radio"
-                defaultChecked
-                name="counterType"
-                id="useReducer"
-                value="useReducer"
-                onChange={handleClick}
-              />
-              <label htmlFor="useReducer">React + useReducer</label>
-            </div>
-            <div>
-              <input
-                type="radio"
-                name="counterType"
-                id="redux"
-                value="redux"
-                onChange={handleClick}
-              />
-              <label htmlFor="redux">React + Redux</label>
-            </div>
+            {Object.values(stateType).map((row) => (
+              <div key={row}>
+                <input
+                  type="radio"
+                  defaultChecked={counterType === row}
+                  name="counterType"
+                  id={row}
+                  value={row}
+                  onChange={handleClick}
+                />
+                <label htmlFor={row}>{row}</label>
+              </div>
+            ))}
           </fieldset>
-          {renderCoutner}
+          {renderCounter}
         </article>
         <article>
-          <Todo />
+          <TimerView />
         </article>
       </main>
     </div>
